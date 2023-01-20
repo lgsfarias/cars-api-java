@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,16 +30,28 @@ public class CarController {
     return repository.findAll();
   }
 
+  @GetMapping("/{id}")
+  public Car findById(@PathVariable Long id) {
+    return repository.findById(id).get();
+  }
+
   @PostMapping
   public String create(@RequestBody @Valid CarsDTO req) {
-    System.out.println("modelo: " + req.modelo() +
-        "\nfabricante: " + req.fabricante() +
-        "\ndataFabricacao: " + req.dataFabricacao() +
-        "\nvalor: " + req.valor() +
-        "\nanoModelo: " + req.anoModelo());
-
     repository.save(new Car(req));
     return "Car created";
+  }
+
+  @PutMapping("/{id}")
+  public String update(@PathVariable Long id, @RequestBody @Valid CarsDTO req) {
+    repository.findById(id).map(car -> {
+      car.setModelo(req.modelo());
+      car.setFabricante(req.fabricante());
+      car.setDataFabricacao(req.dataFabricacao());
+      car.setValor(req.valor());
+      car.setAnoModelo(req.anoModelo());
+      return repository.save(car);
+    });
+    return "Car updated";
   }
 
   @DeleteMapping("/{id}")
